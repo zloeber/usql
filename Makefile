@@ -9,13 +9,12 @@ LINTERS := \
 	honnef.co/go/tools/cmd/staticcheck
 
 BIN_NAME := githubinfo
-VERSION := $(shell grep "const Version " version/version.go | sed -E 's/.*"(.+)"$$/\1/')
+VERSION := $(shell git describe --abbrev=0 --tags)
 GIT_COMMIT := $(shell git rev-parse HEAD)
 GIT_DIRTY := $(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 BUILD_DATE := $(shell date '+%Y-%m-%d-%H:%M:%S')
 IMAGE_NAME := "zloeber/githubinfo"
-LDFLAGS := -X github.com/zloeber/githubinfo/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/zloeber/githubinfo/version.BuildDate=${BUILD_DATE}
-
+LDFLAGS := -s -w -X github.com/xo/usql/text.CommandName=usql -X github.com/xo/usql/text.CommandVersion=${VERSION}
 .PHONY: help
 help: ## Help
 	@grep --no-filename -E '^[a-zA-Z_/-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
