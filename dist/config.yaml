@@ -1,0 +1,151 @@
+project_name: usql
+env:
+- GO111MODULE=on
+release:
+  github:
+    owner: zloeber
+    name: usql
+  name_template: '{{.Tag}}'
+scoop:
+  name: usql
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+builds:
+- id: usql-all
+  goos:
+  - linux
+  - darwin
+  - windows
+  goarch:
+  - amd64
+  - arm
+  - arm64
+  goarm:
+  - "6"
+  targets:
+  - linux_amd64
+  - linux_arm_6
+  - linux_arm64
+  - darwin_amd64
+  - windows_amd64
+  ignore:
+  - goos: darwin
+    goarch: "386"
+    goarm: ""
+    gomips: ""
+  dir: .
+  main: .
+  ldflags:
+  - -s -w -X github.com/xo/usql/text.CommandName=usql -X github.com/xo/usql/text.CommandVersion={{.Version}}
+  flags:
+  - -tags
+  - all
+  - sqlite_app_armor
+  - sqlite_fts5
+  - sqlite_icu
+  - sqlite_introspect
+  - sqlite_json1
+  - sqlite_stat4
+  - sqlite_userauth
+  - sqlite_vtable
+  binary: usql
+  env:
+  - CGO_ENABLED=0
+  - GO111MODULE=on
+  lang: go
+- id: usql
+  goos:
+  - linux
+  - darwin
+  - windows
+  goarch:
+  - amd64
+  - arm
+  - arm64
+  goarm:
+  - "6"
+  targets:
+  - linux_amd64
+  - linux_arm_6
+  - linux_arm64
+  - darwin_amd64
+  - windows_amd64
+  ignore:
+  - goos: darwin
+    goarch: "386"
+    goarm: ""
+    gomips: ""
+  dir: .
+  main: .
+  ldflags:
+  - -s -w -X github.com/xo/usql/text.CommandName=usql -X github.com/xo/usql/text.CommandVersion={{.Version}}
+  flags:
+  - -tags
+  - most
+  binary: usql
+  env:
+  - CGO_ENABLED=0
+  - GO111MODULE=on
+  lang: go
+archives:
+- id: default
+  builds:
+  - usql-all
+  - usql
+  name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{
+    end }}'
+  replacements:
+    "386": i386
+    amd64: x86_64
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+  format: tar.gz
+  format_overrides:
+  - goos: windows
+    format: zip
+  files:
+  - licence*
+  - LICENCE*
+  - license*
+  - LICENSE*
+  - readme*
+  - README*
+  - changelog*
+  - CHANGELOG*
+snapshot:
+  name_template: '{{ .Tag }}-next'
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+changelog:
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
+    - Merge pull request
+    - Merge branch
+  sort: asc
+dist: dist
+signs:
+- id: default
+  cmd: gpg
+  args:
+  - --output
+  - $signature
+  - --detach-sig
+  - $artifact
+  signature: ${artifact}.sig
+  artifacts: none
+env_files:
+  github_token: ~/.config/goreleaser/github_token
+  gitlab_token: ~/.config/goreleaser/gitlab_token
+  gitea_token: ~/.config/goreleaser/gitea_token
+before:
+  hooks:
+  - go mod download
+github_urls:
+  download: https://github.com
+gitlab_urls:
+  download: https://gitlab.com
